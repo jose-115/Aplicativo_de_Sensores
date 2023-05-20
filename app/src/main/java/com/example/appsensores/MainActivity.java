@@ -11,10 +11,13 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
     private SensorManager sensorManager;
     private Sensor lightSensor;
+    private Sensor temperatureSensor;
+    private TextView temperatureText;
     private RelativeLayout layout;
 
     @Override
@@ -25,6 +28,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         layout = findViewById(R.id.layout);
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+        temperatureSensor = sensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
+        temperatureText = findViewById(R.id.tvTemperatura);
 
 
         if (checkSelfPermission(Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
@@ -36,23 +41,31 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onResume() {
         super.onResume();
         sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, temperatureSensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         sensorManager.unregisterListener(this);
+
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        float lightLevel = event.values[0];
+        if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
+            float lightLevel = event.values[0];
 
-        //Mudança de luz altera a cor do background
-        if (lightLevel < 50) {
-            layout.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
-        } else {
-            layout.setBackgroundColor(getResources().getColor(android.R.color.white));
+            //Mudança de luz altera a cor do background//
+            if (lightLevel < 50) {
+                layout.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
+            } else {
+                layout.setBackgroundColor(getResources().getColor(android.R.color.white));
+            }
+        } else if (event.sensor.getType() == Sensor.TYPE_AMBIENT_TEMPERATURE) {
+            //Temperatura//
+            float temperature = event.values[0];
+            temperatureText.setText(String.format("%.2f°C", temperature));
         }
     }
 
