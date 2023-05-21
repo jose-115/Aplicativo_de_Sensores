@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">appSensores</string>
-    <string name="temperatura">Temperatura</string>
+    <string name="textoLuz">Luminosidade:</string>
+    <string name="textoTemp">Temperatura:</string>
+    <string name="textoUmidade">Umidade:</string>
+    <string name="error">error</string>
 </resources>

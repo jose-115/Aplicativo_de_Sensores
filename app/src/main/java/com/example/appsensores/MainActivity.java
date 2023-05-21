@@ -1,6 +1,7 @@
 package com.example.appsensores;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.Manifest;
 import android.content.Context;
@@ -15,10 +16,9 @@ import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
     private SensorManager sensorManager;
-    private Sensor lightSensor;
-    private Sensor temperatureSensor;
-    private TextView temperatureText;
-    private RelativeLayout layout;
+    private Sensor lightSensor, temperatureSensor, humiditySensor;
+    private TextView temperatureText, luzText, umidadeText;
+    private ConstraintLayout layout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,8 +29,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
         temperatureSensor = sensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
-        temperatureText = findViewById(R.id.tvTemperatura);
+        humiditySensor = sensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY);
 
+        temperatureText = findViewById(R.id.tvTemperatura);
+        luzText = findViewById(R.id.tvLuzConfirma);
+        umidadeText = findViewById(R.id.tvUmidade);
 
         if (checkSelfPermission(Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.INTERNET}, 1);
@@ -42,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onResume();
         sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(this, temperatureSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, humiditySensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
@@ -59,13 +63,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             //Mudança de luz altera a cor do background//
             if (lightLevel < 50) {
                 layout.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
+                luzText.setText("Escuro");
             } else {
                 layout.setBackgroundColor(getResources().getColor(android.R.color.white));
+                luzText.setText("Claro");
             }
         } else if (event.sensor.getType() == Sensor.TYPE_AMBIENT_TEMPERATURE) {
             //Temperatura//
             float temperature = event.values[0];
             temperatureText.setText(String.format("%.2f°C", temperature));
+        } else if (event.sensor.getType() == Sensor.TYPE_RELATIVE_HUMIDITY) {
+            //Umidade//
+            float humidity = event.values[0];
+            umidadeText.setText(String.format("%.2f%%", humidity));
         }
     }
 
