@@ -3,5 +3,6 @@
     <string name="textoLuz">Luminosidade:</string>
     <string name="textoTemp">Temperatura:</string>
     <string name="textoUmidade">Umidade:</string>
+    <string name="textoProximidade">Proximidade:</string>
     <string name="error">error</string>
 </resources>

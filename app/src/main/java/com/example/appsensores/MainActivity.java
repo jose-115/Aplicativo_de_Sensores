@@ -16,8 +16,8 @@ import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
     private SensorManager sensorManager;
-    private Sensor lightSensor, temperatureSensor, humiditySensor;
-    private TextView temperatureText, luzText, umidadeText;
+    private Sensor lightSensor, temperatureSensor, humiditySensor, proximitySensor;
+    private TextView temperatureText, luzText, umidadeText, proximidadeText;
     private ConstraintLayout layout;
 
     @Override
@@ -30,10 +30,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
         temperatureSensor = sensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
         humiditySensor = sensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY);
+        proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 
         temperatureText = findViewById(R.id.tvTemperatura);
         luzText = findViewById(R.id.tvLuzConfirma);
         umidadeText = findViewById(R.id.tvUmidade);
+        proximidadeText = findViewById(R.id.tvProximidade);
 
         if (checkSelfPermission(Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.INTERNET}, 1);
@@ -46,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(this, temperatureSensor, SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(this, humiditySensor, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
@@ -76,6 +79,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             //Umidade//
             float humidity = event.values[0];
             umidadeText.setText(String.format("%.2f%%", humidity));
+        } else if (event.sensor.getType() == Sensor.TYPE_PROXIMITY) {
+            //Proximidade//
+            float proximity = event.values[0];
+            proximidadeText.setText(String.format("%.2f", proximity));
         }
     }
 
