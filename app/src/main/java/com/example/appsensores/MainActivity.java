@@ -16,9 +16,10 @@ import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
     private SensorManager sensorManager;
-    private Sensor lightSensor, temperatureSensor, humiditySensor, proximitySensor;
+    private Sensor lightSensor, temperatureSensor, humiditySensor, proximitySensor, motionSensor;
     private TextView temperatureText, luzText, umidadeText, proximidadeText;
     private ConstraintLayout layout;
+    private boolean movimentoDetectado = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +32,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         temperatureSensor = sensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
         humiditySensor = sensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY);
         proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+        motionSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
         temperatureText = findViewById(R.id.tvTemperatura);
         luzText = findViewById(R.id.tvLuzConfirma);
@@ -49,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         sensorManager.registerListener(this, temperatureSensor, SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(this, humiditySensor, SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(this, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, motionSensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
@@ -63,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
             float lightLevel = event.values[0];
 
-            //Mudança de luz altera a cor do background//
+            // Mudança de luz altera a cor do background e texto//
             if (lightLevel < 50) {
                 layout.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
                 luzText.setText("Escuro");
@@ -72,22 +75,43 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 luzText.setText("Claro");
             }
         } else if (event.sensor.getType() == Sensor.TYPE_AMBIENT_TEMPERATURE) {
-            //Temperatura//
+            // Temperatura //
             float temperature = event.values[0];
             temperatureText.setText(String.format("%.2f°C", temperature));
         } else if (event.sensor.getType() == Sensor.TYPE_RELATIVE_HUMIDITY) {
-            //Umidade//
+            // Umidade //
             float humidity = event.values[0];
             umidadeText.setText(String.format("%.2f%%", humidity));
         } else if (event.sensor.getType() == Sensor.TYPE_PROXIMITY) {
-            //Proximidade//
+            // Proximidade //
             float proximity = event.values[0];
             proximidadeText.setText(String.format("%.2f", proximity));
+        } else if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            // Movimento //
+            float x = event.values[0];
+            float y = event.values[0];
+            float z = event.values[0];
+
+            if (x > 1 || y > 1 || z > 1 || x < -1 || y < -1 || z < -1) {
+                // apagar campos ao virar tela //
+                movimentoDetectado = true;
+                LimparSensores();
+            } else {
+                movimentoDetectado = false;
+            }
         }
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
+    }
+
+    private void LimparSensores() {
+        // apagar os campos de sensores //
+        temperatureText.setText("");
+        luzText.setText("");
+        umidadeText.setText("");
+        proximidadeText.setText("");
     }
 }
